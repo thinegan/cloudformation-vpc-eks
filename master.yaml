@@ -29,7 +29,7 @@ Parameters:
 Mappings:
   EnvMap:
 
-    largeVPC:
+    devVPC:
       PMVpcCIDR: "10.34.0.0/16"
       PMPublicSubnet1CIDR: "10.34.1.0/20"     # 4094 ips
       PMPublicSubnet2CIDR: "10.34.16.0/20"    # 4094 ips
