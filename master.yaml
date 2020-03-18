@@ -99,9 +99,6 @@ Resources:
       TimeoutInMinutes: '5'
       Parameters:
         PMOWNIP: !Ref "PMOWNIP"
-        PMPtun1: !Ref "PMPtun1"
-        PMPtun2: !Ref "PMPtun2"
-        PMPtun3: !Ref "PMPtun3"
         PMVpcCIDR: !GetAtt "MyVPC.Outputs.PMVpcCIDR"
         PMPublicNACL: !GetAtt "MyVPC.Outputs.MyPublicNetworkACL"
         PMPrivateNACL: !GetAtt "MyVPC.Outputs.MyPrivateNetworkACL"

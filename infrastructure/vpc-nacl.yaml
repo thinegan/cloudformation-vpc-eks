@@ -14,18 +14,6 @@ Parameters:
     Description: "Update this with your own office/home public ip address"
     Type: "String"
 
-  PMPtun1:
-    Description: "Update this with your own office/home VPN ip address"
-    Type: "String"
-
-  PMPtun2:
-    Description: "Update this with your own office/home VPN ip address"
-    Type: "String"
-
-  PMPtun3:
-    Description: "Update this with your own office/home VPN ip address"
-    Type: "String"
-
   PMVpcCIDR:
     Description: "Please enter the IP range (CIDR notation) for this VPC"
     Type: "String"
