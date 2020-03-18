@@ -18,26 +18,6 @@ Parameters:
     Description: "Enter an existing EC2 KeyPair."
     Type: "String" 
 
-  PMVpcCIDR:
-    Description: "VPC CIDR."
-    Type: "String"
-
-  PMPublicSubnet1CIDR:
-    Description: "VPC Public Subnet 1."
-    Type: "String"
-
-  PMPublicSubnet2CIDR:
-    Description: "VPC Public Subnet 2."
-    Type: "String"
-
-  PMPrivateSubnet1CIDR:
-    Description: "VPC Private Subnet 1."
-    Type: "String"
-
-  PMPrivateSubnet2CIDR:
-    Description: "VPC Private Subnet 2."
-    Type: "String"
-
   PMTemplateURL:
     Description: "S3 bucket cloudformation template url."
     Type: "String"
