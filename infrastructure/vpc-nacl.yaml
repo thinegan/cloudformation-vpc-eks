@@ -1,0 +1,754 @@
+# Note : The Cloudformation Security Group IP address is open by default (testing purpose).
+# You should update Security Group Access with your own IP Address to ensure your instances security.
+#
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+    This template contains the Security Groups and Network Access Control
+    required by our entire stack. We create them in a seperate nested template,
+    so they can be referenced by all of the other nested templates.
+
+Parameters:
+
+  PMOWNIP:
+    Description: "Update this with your own office/home public ip address"
+    Type: "String"
+
+  PMPtun1:
+    Description: "Update this with your own office/home VPN ip address"
+    Type: "String"
+
+  PMPtun2:
+    Description: "Update this with your own office/home VPN ip address"
+    Type: "String"
+
+  PMPtun3:
+    Description: "Update this with your own office/home VPN ip address"
+    Type: "String"
+
+  PMVpcCIDR:
+    Description: "Please enter the IP range (CIDR notation) for this VPC"
+    Type: "String"
+
+  PMPublicNACL:
+    Description: "Public Network ACL Id"
+    Type: "String"
+
+  PMPrivateNACL:
+    Description: "Private Network ACL Id"
+    Type: "String"
+
+Resources:
+  #####################################################################################
+  # Private Network ACL Firewall Protection (inbound and outbound traffic at the subnet level)
+  #####################################################################################
+
+  ####### INBOUND HTTP Network ACL RULES ##############################################
+  InboundHTTPNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '100'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '80'
+        To: '80'
+
+  ####### INBOUND HTTPS Network ACL RULES #######
+  InboundHTTPSNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '200'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '443'
+        To: '443'
+
+  ####### INBOUND SSH Network ACL RULES #######
+  InboundSSHNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '300'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: !Ref "PMVpcCIDR"
+      PortRange:
+        From: '22'
+        To: '22'
+
+  ####### INBOUND SSH2 Network ACL RULES #######
+  InboundSSH2NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '305'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "172.30.0.0/16"
+      PortRange:
+        From: '22'
+        To: '22'
+
+  ####### INBOUND SSH3 Network ACL RULES #######
+  InboundSSH3NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '310'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "10.3.0.0/16"
+      PortRange:
+        From: '22'
+        To: '22'
+
+  ####### INBOUND LDAP Network ACL RULES #######
+  InboundLDAPNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '320'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '636'
+        To: '636'
+
+  ####### INBOUND MYSQL Network ACL RULES #######
+  InboundMYSQLNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '330'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '3306'
+        To: '3306'
+
+  ####### INBOUND NTP Network ACL RULES #######
+  InboundNTPNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '340'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '123'
+        To: '123'
+
+  ####### INBOUND NTP Network ACL RULES #######
+  InboundDNSNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '345'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '53'
+        To: '53'
+
+  ####### INBOUND SMTP 587 Network ACL RULES #######
+  InboundSMTP587NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '370'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '587'
+        To: '587'
+
+  ####### INBOUND SMTP 25 Network ACL RULES #######
+  InboundSMTP25NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '380'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '25'
+        To: '25'
+
+  ####### INBOUND Ephemeral Ports Network ACL RULES (TCP) #######
+  InboundEPHNACLPTCP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '500'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '1024'
+        To: '65535'
+
+  ####### INBOUND Ephemeral Ports Network ACL RULES (UDP) #######
+  InboundEPHNACLPUDP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '510'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '1024'
+        To: '65535'        
+
+  ####### INBOUND ICMP Network ACL RULES #######
+  InboundICMPNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '600'
+      Protocol: "1"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      Icmp:
+        Code: "-1"
+        Type: "-1"
+
+  ####### OUTBOUND HTTP Network ACL RULES #######
+  OutboundHTTPNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '100'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '80'
+        To: '80'
+
+  ###### OUTBOUND HTTPS Network ACL RULES #######
+  OutboundHTTPSNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '200'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '443'
+        To: '443'
+
+  ####### OUTBOUND SSH Network ACL RULES #######
+  OutboundSSHNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '300'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: !Ref "PMVpcCIDR"
+      PortRange:
+        From: '22'
+        To: '22'
+
+  ####### OUTBOUND SSH2 Network ACL RULES #######
+  OutboundSSH2NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '305'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "172.30.0.0/16"
+      PortRange:
+        From: '22'
+        To: '22'
+
+  ####### OUTBOUND SSH3 Network ACL RULES #######
+  OutboundSSH3NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '310'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "10.3.0.0/16"
+      PortRange:
+        From: '22'
+        To: '22'
+
+  ####### OUTBOUND LDAP Network ACL RULES #######
+  OutboundLDAPNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '320'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '636'
+        To: '636'
+
+  ####### OUTBOUND MYSQL Network ACL RULES #######
+  OutboundMYSQLNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '330'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '3306'
+        To: '3306'
+
+  ####### OUTBOUND NTP Network ACL RULES #######
+  OutboundNTPNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '340'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '123'
+        To: '123'
+
+  ####### OUTBOUND DNS Network ACL RULES #######
+  OutboundDNSNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '345'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '53'
+        To: '53'
+
+  ####### OUTBOUND SMTP 587 Network ACL RULES #######
+  OutboundSMTP587NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '370'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '587'
+        To: '587'
+
+  ####### OUTBOUND SMTP 25 Network ACL RULES #######
+  OutboundSMTP25NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '380'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '25'
+        To: '25'
+
+  ####### OUTBOUND Ephemeral Ports Network ACL RULES (TCP) #######
+  OutboundEPHNACLPTCP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '500'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '1024'
+        To: '65535'
+
+  ####### OUTBOUND Ephemeral Ports Network ACL RULES (UDP) #######
+  OutboundEPHNACLPUDP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '510'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '1024'
+        To: '65535'        
+
+  ####### OUTBOUND ICMP Network ACL RULES #######
+  OutboundICMPNACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPrivateNACL"
+      RuleNumber: '600'
+      Protocol: "1"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      Icmp:
+        Code: "-1"
+        Type: "-1"
+
+  #####################################################################################
+  # Public Network ACL Firewall Protection (inbound and outbound traffic at the subnet level)
+  ####### INBOUND HTTP Network ACL RULES ##############################################
+  InboundHTTPNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '100'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '80'
+        To: '80'
+
+  ####### INBOUND HTTPS Network ACL RULES #######
+  InboundHTTPSNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '200'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '443'
+        To: '443'
+
+  ####### INBOUND SSH Network ACL RULES #######
+  InboundSSHNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '300'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '22'
+        To: '22'
+
+  ####### INBOUND LDAP Network ACL RULES #######
+  InboundLDAPNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '310'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '636'
+        To: '636'
+
+  ####### INBOUND NTP Network ACL RULES #######
+  InboundNTPNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '320'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '123'
+        To: '123'
+
+  ####### USED RuleNumber SMTP 25 Network ACL RULES #######
+  # RuleNumber: '330'
+  ####### USED RuleNumber SMTP 25 Network ACL RULES #######
+
+  ####### USED RuleNumber SMTP 587 Network ACL RULES #######
+  # RuleNumber: '340'
+  ####### USED RuleNumber SMTP 587 Network ACL RULES #######
+
+  ####### INBOUND DNS Network ACL RULES #######
+  InboundDNSNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '345'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '53'
+        To: '53'
+
+  ####### INBOUND SMTP 25 Network ACL RULES #######
+  InboundSMTP587NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '370'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '587'
+        To: '587'
+
+  ####### INBOUND SMTP 25 Network ACL RULES #######
+  InboundSMTP25NACLP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '380'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: !Ref "PMVpcCIDR"
+      PortRange:
+        From: '25'
+        To: '25'
+
+  ###### INBOUND Ephemeral Ports Network ACL RULES #######
+  InboundEPHNACLTCP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '400'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '1024'
+        To: '65535'
+
+  ####### INBOUND Ephemeral Ports Network ACL RULES (UDP) #######
+  InboundEPHNACLUDP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '410'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '1024'
+        To: '65535'
+
+  ####### INBOUND ICMP Network ACL RULES #######
+  InboundICMPNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '500'
+      Protocol: "1"
+      RuleAction: "allow"
+      Egress: "false"
+      CidrBlock: "0.0.0.0/0"
+      Icmp:
+        Code: "-1"
+        Type: "-1"
+
+  ####### OUTBOUND HTTP Network ACL RULES #######
+  OutboundHTTPNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '100'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '80'
+        To: '80'
+
+  ####### OUTBOUND HTTPS Network ACL RULES #######
+  OutboundHTTPSNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '200'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '443'
+        To: '443'
+
+  ####### OUTBOUND SSH Network ACL RULES #######
+  OutboundSSHNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '300'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '22'
+        To: '22'
+
+  ####### OUTBOUND LDAP Network ACL RULES #######
+  OutboundLDAPNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '310'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '636'
+        To: '636'
+
+  ####### OUTBOUND NTP Network ACL RULES #######
+  OutboundNTPNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '320'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '123'
+        To: '123'
+
+  ####### OUTBOUND SMTP Network ACL RULES #######
+  OutboundSMTP25NACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '330'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '25'
+        To: '25'
+
+  ####### OUTBOUND SMTP 587 Network ACL RULES #######
+  OutboundSMTP587NACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '340'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '587'
+        To: '587'
+
+  ####### OUTBOUND DNS 53 Network ACL RULES #######
+  OutboundDNSNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '345'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '53'
+        To: '53'
+
+  ####### OUTBOUND Ephemeral Ports Network ACL RULES (TCP) #######
+  OutboundEPHNACLTCP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '400'
+      Protocol: "6"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '1024'
+        To: '65535'
+
+  ####### OUTBOUND Ephemeral Ports Network ACL RULES (UDP) #######
+  OutboundEPHNACLUDP:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '410'
+      Protocol: "17"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      PortRange:
+        From: '1024'
+        To: '65535'        
+
+  ####### OUTBOUND ICMP Network ACL RULES #######
+  OutboundICMPNACL:
+    Type: "AWS::EC2::NetworkAclEntry"
+    Properties:
+      NetworkAclId: !Ref "PMPublicNACL"
+      RuleNumber: '500'
+      Protocol: "1"
+      RuleAction: "allow"
+      Egress: "true"
+      CidrBlock: "0.0.0.0/0"
+      Icmp:
+        Code: "-1"
+        Type: "-1"

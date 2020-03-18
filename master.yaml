@@ -1,0 +1,121 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+    This is a master template to create a VPC EKS Setup.
+    The following task will be built
+     - 3 Nat gateway, 3 Subnet Range
+    Last Modified: 18th March 2020
+    Author: Thinegan Ratnam <thinegan@thinegan.com>
+###############################################################################################################
+
+Parameters: 
+
+  PMOWNIP:
+    Description: "Update this with your own office/home public ip address"
+    Type: "String"
+
+  PMKeyName:
+    Description: "Enter an existing EC2 KeyPair."
+    Type: "String" 
+
+  PMVpcCIDR:
+    Description: "VPC CIDR."
+    Type: "String"
+
+  PMPublicSubnet1CIDR:
+    Description: "VPC Public Subnet 1."
+    Type: "String"
+
+  PMPublicSubnet2CIDR:
+    Description: "VPC Public Subnet 2."
+    Type: "String"
+
+  PMPrivateSubnet1CIDR:
+    Description: "VPC Private Subnet 1."
+    Type: "String"
+
+  PMPrivateSubnet2CIDR:
+    Description: "VPC Private Subnet 2."
+    Type: "String"
+
+  PMTemplateURL:
+    Description: "S3 bucket cloudformation template url."
+    Type: "String"
+
+###############################################################################################################
+#
+# For any additional region & Env, you can add by yourself below.
+# Supported Region - North Viginia (US-EAST1) with 3 Zones
+Mappings:
+  EnvMap:
+
+    largeVPC:
+      PMVpcCIDR: "10.34.0.0/16"
+      PMPublicSubnet1CIDR: "10.34.1.0/20"     # 4094 ips
+      PMPublicSubnet2CIDR: "10.34.16.0/20"    # 4094 ips
+      PMPublicSubnet3CIDR: "10.34.32.0/20"    # 4094 ips
+      PMPrivateSubnet1CIDR: "10.34.48.0/20"   # 4094 ips
+      PMPrivateSubnet2CIDR: "10.34.64.0/20"   # 4094 ips
+      PMPrivateSubnet3CIDR: "10.34.80.0/20"   # 4094 ips
+
+###############################################################################################################
+
+Resources:
+
+  MyIAMRole:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      TemplateURL: !Sub "${PMTemplateURL}/vpc-iam.yaml"
+      TimeoutInMinutes: '5'
+      Parameters:
+        PMServerEnv: !Ref "AWS::StackName"
+
+  MyVPC:
+    Type: "AWS::CloudFormation::Stack"
+    # Condition: "UseProdEnv"
+    DependsOn:
+    - "MyIAMRole"
+    Properties:
+      TemplateURL: !Sub "${PMTemplateURL}/vpc-vpc.yaml"
+      TimeoutInMinutes: '5'
+      Parameters:
+        PMServerEnv: !Ref "AWS::StackName"
+        PMVpcCIDR: !FindInMap ["EnvMap", !Ref "AWS::StackName", "PMVpcCIDR"]
+        PMPublicSubnet1CIDR: !FindInMap ["EnvMap", !Ref "AWS::StackName", "PMPublicSubnet1CIDR"]
+        PMPublicSubnet2CIDR: !FindInMap ["EnvMap", !Ref "AWS::StackName", "PMPublicSubnet2CIDR"]
+        PMPublicSubnet3CIDR: !FindInMap ["EnvMap", !Ref "AWS::StackName", "PMPublicSubnet3CIDR"]
+        PMPrivateSubnet1CIDR: !FindInMap ["EnvMap", !Ref "AWS::StackName", "PMPrivateSubnet1CIDR"]
+        PMPrivateSubnet2CIDR: !FindInMap ["EnvMap", !Ref "AWS::StackName", "PMPrivateSubnet2CIDR"]
+        PMPrivateSubnet3CIDR: !FindInMap ["EnvMap", !Ref "AWS::StackName", "PMPrivateSubnet3CIDR"]
+        PMFlowLogRole: !GetAtt "MyIAMRole.Outputs.VPCFlowLogRoleArn"
+
+  MyNACL:
+    Type: "AWS::CloudFormation::Stack"
+    # Condition: "UseProdEnv"
+    DependsOn:
+    - "MyVPC"
+    Properties:
+      TemplateURL: !Sub "${PMTemplateURL}/vpc-nacl.yaml"
+      TimeoutInMinutes: '5'
+      Parameters:
+        PMOWNIP: !Ref "PMOWNIP"
+        PMPtun1: !Ref "PMPtun1"
+        PMPtun2: !Ref "PMPtun2"
+        PMPtun3: !Ref "PMPtun3"
+        PMVpcCIDR: !GetAtt "MyVPC.Outputs.PMVpcCIDR"
+        PMPublicNACL: !GetAtt "MyVPC.Outputs.MyPublicNetworkACL"
+        PMPrivateNACL: !GetAtt "MyVPC.Outputs.MyPrivateNetworkACL"
+
+Outputs:
+
+  MyIAMRoleS3EC2CW:
+    Description: "A reference to SSL Certificate ARN of the region"
+    Value: !GetAtt "MyIAMRole.Outputs.IAMS3EC2CWInstanceProfile"
+    Export:
+      Name: !Sub "${AWS::StackName}-IAMS3EC2CWInstanceProfile"
+
+  MyStackName:
+    Description: "A reference to Cloudformation Stack Name"
+    Value: !Ref "AWS::StackName"
+    Export:
+      Name: !Sub "${AWS::StackName}-StackName"
