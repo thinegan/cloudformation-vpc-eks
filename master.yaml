@@ -30,13 +30,13 @@ Mappings:
   EnvMap:
 
     devVPC:
-      PMVpcCIDR: "10.34.0.0/16"
-      PMPublicSubnet1CIDR: "10.34.1.0/20"     # 4094 ips
-      PMPublicSubnet2CIDR: "10.34.16.0/20"    # 4094 ips
-      PMPublicSubnet3CIDR: "10.34.32.0/20"    # 4094 ips
-      PMPrivateSubnet1CIDR: "10.34.48.0/20"   # 4094 ips
-      PMPrivateSubnet2CIDR: "10.34.64.0/20"   # 4094 ips
-      PMPrivateSubnet3CIDR: "10.34.80.0/20"   # 4094 ips
+      PMVpcCIDR: "10.38.0.0/16"
+      PMPublicSubnet1CIDR: "10.38.1.0/20"     # 4094 ips
+      PMPublicSubnet2CIDR: "10.38.16.0/20"    # 4094 ips
+      PMPublicSubnet3CIDR: "10.38.32.0/20"    # 4094 ips
+      PMPrivateSubnet1CIDR: "10.38.48.0/20"   # 4094 ips
+      PMPrivateSubnet2CIDR: "10.38.64.0/20"   # 4094 ips
+      PMPrivateSubnet3CIDR: "10.38.80.0/20"   # 4094 ips
 
 ###############################################################################################################
 
