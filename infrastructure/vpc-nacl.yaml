@@ -546,7 +546,7 @@ Resources:
         To: '53'
 
   ####### INBOUND SMTP 25 Network ACL RULES #######
-  InboundSMTP587NACLP:
+  InboundSMTP587NACL:
     Type: "AWS::EC2::NetworkAclEntry"
     Properties:
       NetworkAclId: !Ref "PMPublicNACL"
@@ -560,7 +560,7 @@ Resources:
         To: '587'
 
   ####### INBOUND SMTP 25 Network ACL RULES #######
-  InboundSMTP25NACLP:
+  InboundSMTP25NACL:
     Type: "AWS::EC2::NetworkAclEntry"
     Properties:
       NetworkAclId: !Ref "PMPublicNACL"
@@ -574,7 +574,7 @@ Resources:
         To: '25'
 
   ####### INBOUND Google SMTP 465 Network ACL RULES #######
-  InboundSMTP465NACLP:
+  InboundSMTP465NACL:
     Type: "AWS::EC2::NetworkAclEntry"
     Properties:
       NetworkAclId: !Ref "PMPublicNACL"
